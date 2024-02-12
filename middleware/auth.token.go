@@ -12,7 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Auth(c *fiber.Ctx) error {
+func AuthToken(c *fiber.Ctx) error {
 	// get token from cookie
 	tokenString := c.Cookies("jwt")
 	if tokenString == "" {

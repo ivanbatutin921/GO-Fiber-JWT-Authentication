@@ -12,6 +12,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
+	
+
 )
 
 func SingUp(c *fiber.Ctx) error {
@@ -19,7 +21,10 @@ func SingUp(c *fiber.Ctx) error {
 	var body struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
+		Role     string `json:"role"`
 	}
+	
+	// parse body
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"status": "fail to read body",
@@ -36,7 +41,7 @@ func SingUp(c *fiber.Ctx) error {
 	}
 
 	//create user
-	user := models.User{Email: body.Email, Password: string(hash)}
+	user := models.User{Email: body.Email, Password: string(hash), Role: body.Role}
 	result := initializers.DB.DB.Create(&user)
 
 	if result.Error != nil {
@@ -56,12 +61,14 @@ func Login(c *fiber.Ctx) error {
 	var body struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
+		Role     string `json:"role"`
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"status": "fail to read body",
 		})
 	}
+	
 	//find user
 	var user models.User
 	initializers.DB.DB.First(&user, "email = ?", body.Email)
@@ -82,7 +89,7 @@ func Login(c *fiber.Ctx) error {
 	//generate jwt
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.ID,
-		"exp": time.Now().Add(time.Second * 10).Unix(),
+		"exp": time.Now().Add(time.Hour * 12).Unix(),
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
@@ -98,11 +105,14 @@ func Login(c *fiber.Ctx) error {
 		Name:     "jwt",
 		Value:    tokenString,
 		HTTPOnly: true,
-		Expires:  time.Now().Add(time.Second * 10),
+		Expires:  time.Now().Add(time.Hour * 12),
 	})
+
+	
 
 	return c.Status(http.StatusCreated).JSON(fiber.Map{
 		"status": tokenString,
+		"message": user.Role,
 	})
 }
 
@@ -111,4 +121,8 @@ func Validate(c *fiber.Ctx) error {
 		"message": "I entered",
 	})
 	return nil
+}
+
+func Hello (c *fiber.Ctx) error {
+	return c.SendString("Hello, World!")
 }
