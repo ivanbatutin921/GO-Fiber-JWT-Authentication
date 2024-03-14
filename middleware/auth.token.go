@@ -12,6 +12,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+
+
 func AuthToken(c *fiber.Ctx) error {
 	// get token from cookie
 	tokenString := c.Cookies("jwt")

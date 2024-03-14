@@ -12,9 +12,7 @@ import (
 func AuthRole(c *fiber.Ctx) error {
 	// body struct
 	var body struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		Role     string `json:"role"`
+		Email string `json:"email"`
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(500).JSON(fiber.Map{
@@ -31,9 +29,7 @@ func AuthRole(c *fiber.Ctx) error {
 		})
 	}
 	
-	role := string(body.Role)
-	fmt.Print(body)
-	if role == "admin" && role != "user" {
+	if user.Role == "admin" && user.Role != "user" {
 		c.Next()
 	}else{
 		return c.SendString("ХУЙ ДВА")
